@@ -23,8 +23,8 @@ Works on **Windows** and **macOS** (Intel or Apple Silicon).
 
 1. **Clone this repository** (or download as ZIP and extract):  
    ```bash
-   git clone https://github.com/your-org/your-repo.git
-   cd your-repo
+   git clone https://github.com/antoniolopes/docker-compose-db-course.git
+   cd docker-compose-db-course
    ```
 
 2. **Create your `.env` file** based on the example:  
