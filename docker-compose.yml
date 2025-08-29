@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: course-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command:
+      - --local-infile=1
+      - --secure-file-priv=/var/lib/mysql-files
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d:ro    # put .sql files here to auto-run on first start
+      - ./files:/var/lib/mysql-files             # CSV import/export exchange folder
+    networks:
+      - mysqlnet
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: course-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8182:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: "0"        # only allow connecting to the mysql service
+      UPLOAD_LIMIT: 256M
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mysqlnet
+
+volumes:
+  mysql-data:
+
+networks:
+  mysqlnet:
+    driver: bridge
